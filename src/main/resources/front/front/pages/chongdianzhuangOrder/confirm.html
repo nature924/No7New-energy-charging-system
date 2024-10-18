@@ -1,0 +1,223 @@
+<!-- 个人中心 -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>确认下单</title>
+		<link rel="stylesheet" href="../../layui/css/layui.css">
+		<!-- 样式 -->
+		<link rel="stylesheet" href="../../css/style.css" />
+		<!-- 主题（主要颜色设置） -->
+		<link rel="stylesheet" href="../../css/theme.css" />
+		<!-- 通用的css -->
+		<link rel="stylesheet" href="../../css/common.css" />
+	</head>
+    <style>
+
+        .index-title {
+            text-align: center;
+            box-sizing: border-box;
+            width: 980px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .index-title span {
+            padding: 0 10px;
+            line-height: 1.4;
+        }
+    </style>
+	<body>
+
+    <div id="app">
+        <div class="index-title sub_backgroundColor" :style='{"padding":"10px","boxShadow":"0 0 2px rgba(160, 67, 26, 1)","margin":"10px auto","borderColor":"rgba(0,0,0,.3)","color":"rgba(255, 255, 255, 1)","borderRadius":"4px","borderWidth":"0","fontSize":"20px","borderStyle":"solid","height":"auto"}'>
+            <span>CONFIRM / ORDER</span><span>确认下单</span>
+        </div>
+
+        <div class="container">
+		            <h2>预约时间</h2>
+            <div style="width: 100%;background-color: #fff">
+                <el-date-picker style="width: 98%;margin: 10px"
+                        v-model="chongdianzhuangOrderTime"
+                            type="datetime"
+                        placeholder="选择预约时间">
+                </el-date-picker>
+            </div>
+
+            <h2>清单列表</h2>
+            <table class="layui-table" lay-skin="nob" style="border: 3px dotted #EEEEEE;margin: 20px 0;">
+                <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>现价</th>
+                    <th>数量</th>
+                    <th>总价</th>
+                </tr>
+                </thead>
+                <tbody>
+
+
+                <tr v-for="(item,index) in dataList" v-bind:key="index">
+                    <td style="display: flex;text-align: left;">
+                        <img :src="baseUrl+item.chongdianzhuangPhoto" style="width: 100px;height: 100px;object-fit: cover;">
+                        <div style="margin-left: 10px;margin-top: 40px;">
+                            {{item.chongdianzhuangName}}
+                        </div>
+                    </td>
+                    <td  style="width: 150px;">{{item.chongdianzhuangNewMoney}} RMB</td>
+                    <td style="width: 140px;">
+                        {{item.buyNumber}}
+                    </td>
+                    <td style="width: 100px;">{{(item.chongdianzhuangNewMoney*item.buyNumber).toFixed(2)}} RMB</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="btn-container">
+                <div v-if="this.chongdianzhuangOrderPaymentTypes == 1" style="margin-right: 150px">
+						<span style="font-size: 15px;font-weight: bold;color: #ce0b07;text-decoration:line-through">
+							总价：{{totalMoney.toFixed(2)}}RMB
+						</span>
+                    </br>
+                    <span style="font-size: 18px;font-weight: bold;color: #ce0b07">
+							实付价：{{(totalMoney * zhekou).toFixed(2)}}RMB
+						</span>
+                </div>
+				<div v-if="this.chongdianzhuangOrderPaymentTypes == 2" style="margin-right: 150px;margin-top: 20px">
+					<span style="font-size: 18px;font-weight: bold;color: #ce0b07;margin-right: 20px;">
+						实付价：{{(totalMoney).toFixed(2)}}积分
+					</span>
+				</div>
+                <button @click="payClick()" type="button" style="margin-top: -65px" class="layui-btn layui-btn-lg btn-theme">
+                    <i class="layui-icon">&#xe657;</i> 确定提交
+                </button>
+            </div>
+        </div>
+    </div>
+		<!-- layui -->
+		<script src="../../layui/layui.js"></script>
+		<!-- vue -->
+		<script src="../../js/vue.js"></script>
+        <!-- 引入element组件库 -->
+        <script src="../../xznstatic/js/element.min.js"></script>
+        <!-- 引入element样式 -->
+        <link rel="stylesheet" href="../../xznstatic/css/element.min.css">
+		<!-- 组件配置信息 -->
+		<script src="../../js/config.js"></script>
+		<!-- 扩展插件配置信息 -->
+		<script src="../../modules/config.js"></script>
+		<!-- 工具方法 -->
+		<script src="../../js/utils.js"></script>
+		<!-- 校验格式工具类 -->
+		<script src="../../js/validate.js"></script>
+
+		<script>
+            var vue = new Vue({
+                el: '#app',
+                data: {
+                    //项目路径
+                    baseUrl:"",
+                    dataList: [],
+                    chongdianzhuangOrderTime:new Date(),
+                    chongdianzhuangOrderPaymentTypes: 1,
+                    zhekou:1,
+                    // 当前用户信息
+                    user: {}
+                },
+                computed: {
+                    totalMoney: function() {
+                        var total = 0;
+                        for (var item of this.dataList) {
+                            total += item.chongdianzhuangNewMoney * item.buyNumber
+                        }
+                        return total;
+                    }
+                },
+                methods: {
+                    jump(url) {
+                        jump(url)
+                    }
+                    // 正常下单，生成订单，减少余额，添加积分，减少库存，修改状态已支付
+                    ,payClick() {
+                    let data={
+                        buyNumber:JSON.parse(localStorage.getItem('chongdianzhuangs'))[0].buyNumber,
+                        chongdianzhuangId:JSON.parse(localStorage.getItem('chongdianzhuangs'))[0].chongdianzhuangId,
+                        chongdianzhuangs:localStorage.getItem('chongdianzhuangs'),
+			            yonghuId: localStorage.getItem('userid'),
+                            chongdianzhuangOrderTime:getDatetimeFormat(vue.chongdianzhuangOrderTime),//年月日时分秒
+                    }
+                        // 获取商品详情信息
+                        layui.http.requestJson(`chongdianzhuangOrder/add`, 'POST', data, (res) => {
+                            if(res.code == 0){
+                                layui.layer.msg('下单成功', {
+                                    time: 2000,
+                                    icon: 6
+                                },function (){
+                                    window.location.href='../chongdianzhuangOrder/list.html';
+                                });
+                            }else{
+                                layui.layer.msg(res.msg, {
+                                    time: 2000,
+                                    icon: 5
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+
+            layui.use(['layer', 'element', 'carousel', 'http', 'jquery', 'form', 'upload'], function() {
+                var layer = layui.layer;
+                var element = layui.element;
+                var carousel = layui.carousel;
+                var http = layui.http;
+                var jquery = layui.jquery;
+                var form = layui.form;
+                var upload = layui.upload;
+                vue.baseUrl = http.baseurl
+
+                // 充值
+                jquery('#btn-recharge').click(function(e) {
+                    layer.open({
+                        type: 2,
+                        title: '用户充值',
+                        area: ['900px', '600px'],
+                        content: '../shop-recharge/recharge.html'
+                    });
+                });
+
+                // 获取充电桩购买的清单列表
+				var chongdianzhuangs = localStorage.getItem('chongdianzhuangs');
+				// 转换成json类型，localstorage保存的是string数据
+				vue.dataList = JSON.parse(chongdianzhuangs);
+
+                // 用户当前用户信息
+                let table = localStorage.getItem("userTable");
+                if (!table) {
+                    layer.msg('请先登录', {
+                        time: 2000,
+                        icon: 5
+                    }, function () {
+                        window.parent.location.href = '../login/login.jsp';
+                    });
+                }
+                http.request(`yonghu/session`, 'get', {}, function(data) {
+                    vue.user = data.data;
+                    // 用户当前用户折扣信息
+                    http.request('dictionary/page', 'get', {
+                        dicCode: "huiyuandengji_types",
+                        dicName: "会员等级类型",
+                        codeIndexStart: vue.user.huiyuandengjiTypes,
+                        codeIndexEnd: vue.user.huiyuandengjiTypes,
+                    }, function(res) {
+                        if(res.data.list.length >0){
+                            vue.zhekou = res.data.list[0].beizhu;
+                        }
+                    })
+                });
+            });
+        </script>
+	</body>
+</html>

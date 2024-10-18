@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>充电桩详情页</title>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <!-- 样式 -->
+    <link rel="stylesheet" href="../../css/style.css"/>
+    <!-- 主题（主要颜色设置） -->
+    <link rel="stylesheet" href="../../css/theme.css"/>
+    <!-- 通用的css -->
+    <link rel="stylesheet" href="../../css/common.css"/>
+    <link rel="stylesheet" href="../../xznstatic/css/bootstrap.min.css">
+</head>
+<style>
+    .particulars {
+        width: 90%;
+        background-color: #fff;
+        border-bottom: 1px dotted var(--publicMainColor);
+        padding: 10px 0;
+    }
+
+    .dataExhibition {
+        display: inline-block;
+        width: 60%;
+    }
+
+    .displayBianhao {
+        display: inline-block;
+        width: 20%;
+    }
+
+    .detail-tab .layui-tab-card>.layui-tab-title .layui-this{
+        border: 2px dotted var(--publicMainColor);
+        background-color: #fff;
+        color: #000;
+    }</style>
+<body>
+
+    <div id="app">
+<div style="width: 1000px;margin: 10px auto;height: auto;">
+    <div style="border: 1px  dotted var(--publicMainColor);border-radius: 15px;margin-top:25px;height: 50px;line-height: 50px;padding-left: 15px;display: flex;justify-content: space-between;align-items: center;padding-right: 15px;">
+        <span>
+            <a style="color: #000;" href="../home/home.html">
+                首页
+            </a>/
+            <a>
+                <cite style="color: #815476;">
+                    {{title}}
+                </cite>
+            </a>
+        </span>
+    </div>
+    <div style="display: flex;margin-top: 20px;">
+        <!-- 详情介绍 -->
+        <div style="width: 50%;height: auto;">
+            <div class="particulars" style="text-align: center;font-size: 18px;">
+                <span>{{title}}</span>
+            </div>
+                  <div v-if="detail.chongdianzhuangUuidNumber" class="particulars">
+                      <span class="displayBianhao">充电桩编号:</span>
+                      <span class="dataExhibition"> {{detail.chongdianzhuangUuidNumber}} </span>
+                  </div>
+                  <div v-if="detail.chongdianzhuangTypes" class="particulars">
+                      <span class="displayBianhao">充电桩类型:</span>
+                      <span class="dataExhibition"> {{detail.chongdianzhuangValue}} </span>
+                  </div>
+                  <div v-if="detail.chongdianzhuangZhuangtaiTypes" class="particulars">
+                      <span class="displayBianhao">充电桩状态:</span>
+                      <span class="dataExhibition"> {{detail.chongdianzhuangZhuangtaiValue}} </span>
+                  </div>
+                  <div v-if="detail.chongdianzhuangKucunNumber" class="particulars">
+                      <span class="displayBianhao">可充时长:</span>
+                      <span class="dataExhibition"> {{detail.chongdianzhuangKucunNumber}} </span>
+                  </div>
+                  <div v-if="detail.chongdianzhuangNewMoney" class="particulars">
+                      <span class="displayBianhao">金额/小时:</span>
+                      <span class="dataExhibition"> {{detail.chongdianzhuangNewMoney}} </span>
+                  </div>
+        </div>
+        <!-- 图片 -->
+        <div style="width: 50%;height: auto;">
+            <div>
+                <div v-if="swiperList.length" v-for="(item,index) in swiperList" :key="index">
+                    <img style="width: 100%;height: 100%;object-fit:cover;" :src="baseUrl+item" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 按钮 -->
+    <div style="width: 100%;">
+        <div  v-if="detail.chongdianzhuangZhuangtaiTypes==2" style="display: flex;margin-top: 30px;justify-content: center;border-bottom:1px dotted var(--publicMainColor) ;border-top:1px dotted var(--publicMainColor) ;padding: 20px;align-items: center;">
+            <button style="height:auto;"
+                    :style='{"padding":"0","boxShadow":"0 0 6px rgba(255,0,0,0)","margin":"0","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(244, 121, 131, 1)","color":"#666","borderRadius":"4px 0 0 4px","borderWidth":"1px","width":"34px","lineHeight":"34px","fontSize":"14px","borderStyle":"solid"}'
+                    type="button" @click="buyNumber>0?buyNumber--:buyNumber"
+                    class="layui-btn layui-btn-primary">
+                -
+            </button>
+            <input style="text-align:center;padding:10px 20px;width:300px;"
+                   :style='{"padding":"0","boxShadow":"0 0 6px rgba(255,0,0,0)","margin":"0","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(255, 242, 223, 1)","color":"rgba(255, 45, 81, 1)","borderRadius":"0","borderWidth":"1px 0","width":"44px","lineHeight":"34px","fontSize":"14px","borderStyle":"solid"}'
+                   type="number" v-model="buyNumber" id="buyNumber" name="buyNumber" class="layui-input"
+                   disabled="disabled" />
+            <button style="height:auto;"
+                    :style='{"padding":"0","boxShadow":"0 0 6px rgba(255,0,0,0)","margin":"0","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(68, 206, 246, 1)","color":"#666","borderRadius":"0 4px 4px 0","borderWidth":"1px","width":"34px","lineHeight":"34px","fontSize":"14px","borderStyle":"solid"}'
+                    type="button" @click="buyNumber++" class="layui-btn layui-btn-primary">
+                +
+            </button>
+            <button @click="addChongdianzhuangOrder()" style="height:auto;"
+                    :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}'
+                    type="button" class="layui-btn btn-submit">
+                立即预约
+            </button>
+            <!--
+             <button @click="chongdianzhuangYuyue()" style="height:auto;" :style='{"padding":"0 10px","boxShadow":"0 0 0px rgba(255,0,0,.3)","margin":"0 5px","borderColor":"rgba(0,0,0,.3)","backgroundColor":"rgba(23, 124, 176, 1)","color":"rgba(255, 255, 255, 1)","borderRadius":"6px","borderWidth":"0","width":"auto","lineHeight":"40px","fontSize":"16px","borderStyle":"solid"}' type="button" class="layui-btn btn-submit">
+                 立即预约
+             </button>
+        -->
+        </div>
+    </div>
+
+    <!-- 视频 -->
+
+
+    <!-- 评论 -->
+    <div class="layui-row detail-tab" style="border: none;box-shadow: none;">
+        <div class="layui-tab layui-tab-card" style="overflow: hidden;border: none; box-shadow: none;">
+            <ul class="layui-tab-title " :style='{"backgroundColor":"#fff","fontSize":"14px"}' style="color: var(--publicMainColor);border: none;">
+                <li class="layui-this">充电桩介绍</li>
+                <li></li>
+            </ul>
+
+            <div class="layui-tab-content" style="border: 1px dotted var(--publicMainColor);border-radius: 15px;margin-top: 10px;margin-bottom: 50px;">
+                <div class="layui-tab-item layui-show">
+                    <div v-html="myFilters(detail.chongdianzhuangContent)"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    </div>
+
+
+    <script src="../../layui/layui.js"></script>
+    <script src="../../js/vue.js"></script>
+    <!-- 引入element组件库 -->
+    <script src="../../xznstatic/js/element.min.js"></script>
+    <!-- 引入element样式 -->
+    <link rel="stylesheet" href="../../xznstatic/css/element.min.css">
+    <!-- 组件配置信息 -->
+    <script src="../../js/config.js"></script>
+    <!-- 扩展插件配置信息 -->
+    <script src="../../modules/config.js"></script>
+    <!-- 工具方法 -->
+    <script src="../../js/utils.js"></script>
+
+    <script>
+        Vue.prototype.myFilters= function (msg) {
+            if(msg != null){
+                return msg.replace(/\n/g, "<br>");
+            }else{
+                return "";
+            }
+        };
+        var vue = new Vue({
+            el: '#app',
+            data: {
+                //当前登录用户信息
+                user:{},
+                // 轮播图
+                swiperList: [],//用于当前表的图片
+                // 数据详情
+                detail: {
+                    id: 0
+                },
+                // 商品标题
+                title: '',
+                totalScore: 0,//评分
+                baseUrl:"",//路径
+                storeupFlag: 0,//收藏 [0为收藏 1已收藏]
+                //系统推荐
+                chongdianzhuangRecommendList: [],
+    <!-- 是订单并且非座位才有购物车 -->
+                // 加入购物车数量
+                buyNumber: 1,
+                // 当前详情页表
+                detailTable: 'chongdianzhuang',
+            },
+            methods: {
+                //分享
+                share(){
+                    let element = createElement("http://localhost:8080/xinnengyuanchongdainxitong/front/index.html?url="+"./pages/chongdianzhuang/detail.html?id="+this.id);
+                    element.select();
+                    element.setSelectionRange(0, element.value.length);
+                    document.execCommand('copy');
+                    element.remove();
+                    layui.layer.msg('复制分享页面成功,快去分享吧!', {time: 2000,icon: 6});
+                },
+
+                jump(url) {
+                    jump(url)
+                },
+                isAuth(tablename, button) {
+                    return isFrontAuth(tablename, button)
+                },
+                //预约
+                chongdianzhuangYuyue(){
+                    let _this = this;
+                    // localStorage.setItem('chongdianzhuangId', _this.detail.id);
+                    // _this.jump("../chongdianzhuangOrder/add.html");
+
+                    let data={
+                        chongdianzhuangId:_this.detail.id,
+                        yonghuId:localStorage.getItem("userid"),
+                        chongdianzhuangOrderYesnoTypes:1,
+                    }
+                    // 提交数据
+                    layui.http.requestJson('chongdianzhuangOrder/add', 'post', data, function (res) {
+                        if(res.code == 0) {
+                            layui.layer.msg('预约成功', {
+                                time: 2000,
+                                icon: 6
+                            }, function () {
+                                _this.jump("../chongdianzhuangOrder/list.html");
+                            });
+                        }else{
+                            layui.layer.msg(res.msg, {
+                                time: 5000,
+                                icon: 5
+                            });
+                        }
+                    });
+                },
+                // 立即购买
+                addChongdianzhuangOrder() {
+                                                                                                      // 库存限制
+                    if (this.detail.chongdianzhuangKucunNumber > 0 && this.detail.chongdianzhuangKucunNumber < this.buyNumber) {
+                        layui.layer.msg(`充电桩库存不足`, {
+                            time: 2000,
+                            icon: 5
+                        });
+                        return false;
+                    }
+                    // 保存到storage中，在确认下单页面中获取要购买的商品
+                localStorage.setItem('chongdianzhuangs', JSON.stringify([{
+                        chongdianzhuangId: vue.detail.id,
+                    chongdianzhuangName: vue.detail.chongdianzhuangName,
+                    chongdianzhuangUuidNumber: vue.detail.chongdianzhuangUuidNumber,
+                    chongdianzhuangPhoto: vue.detail.chongdianzhuangPhoto,
+                    chongdianzhuangTypes: vue.detail.chongdianzhuangTypes,
+                    chongdianzhuangZhuangtaiTypes: vue.detail.chongdianzhuangZhuangtaiTypes,
+                    chongdianzhuangKucunNumber: vue.detail.chongdianzhuangKucunNumber,
+                    chongdianzhuangNewMoney: vue.detail.chongdianzhuangNewMoney,
+                    chongdianzhuangContent: vue.detail.chongdianzhuangContent,
+                    shangxiaTypes: vue.detail.shangxiaTypes,
+                    chongdianzhuangDelete: vue.detail.chongdianzhuangDelete,
+                    createTime: vue.detail.createTime,
+                        buyNumber: this.buyNumber,
+                    yonghuId: localStorage.getItem('userid'),
+                }]));
+                    // 跳转到确认下单页面
+                    jump('../chongdianzhuangOrder/confirm.html');
+                },
+
+                }
+        });
+
+        layui.use(['layer', 'form', 'element', 'carousel', 'http', 'jquery', 'laypage', 'util'], function () {
+            var layer = layui.layer;
+            var util = layui.util;
+            var element = layui.element;
+            var form = layui.form;
+            var carousel = layui.carousel;
+            var http = layui.http;
+            var jquery = layui.jquery;
+            var laypage = layui.laypage;
+            vue.baseUrl = http.baseurl
+
+            localStorage.setItem("goUtl","./pages/chongdianzhuang/detail.html?id="+ http.getParam('id'))
+
+            var limit = 10;
+
+            let table = localStorage.getItem("userTable");
+            if(table){
+                http.request(table+"/session", 'get', {}, function (data) {
+                    vue.user = data.data;
+                });
+            }
+
+            // 数据ID
+            var id = http.getParam('id');
+            vue.detail.id = id;
+            // 数据信息
+            http.request(`${vue.detailTable}/detail/` + id, 'get', {}, function (res) {
+                // 详情信息
+                vue.detail = res.data;
+                vue.title = vue.detail.chongdianzhuangName;
+                vue.detail.chongdianzhuangContent = vue.detail.chongdianzhuangContent.replaceAll("src=\"upload/","src=\""+vue.baseUrl+"upload/");
+                // 轮播图片
+                vue.swiperList = vue.detail.chongdianzhuangPhoto ? vue.detail.chongdianzhuangPhoto.split(",") : [];
+                // 轮播图
+                vue.$nextTick(() => {
+                    carousel.render({
+                        elem: '#swiper',
+                        width: '420px',
+                        height: '400px',
+                        arrow: 'hover',
+                        anim: 'default',
+                        autoplay: 'true',
+                        interval: '3000',
+                        indicator: 'inside'
+                    });
+                });
+
+            });
+
+
+            // 系统推荐
+            http.request(`chongdianzhuang/gexingtuijian`, 'get', {
+                page: 1,
+                limit: 5,
+                chongdianzhuangTypes: vue.detail.chongdianzhuangTypes,
+                chongdianzhuangDelete: 1,
+                shangxiaTypes: 1,//上架的
+                chongdianzhuangZhuangtaiTypes: vue.detail.chongdianzhuangZhuangtaiTypes,
+            }, function (res) {
+                vue.chongdianzhuangRecommendList = res.data.list;
+            });
+
+        });
+    </script>
+</body>
+</html>

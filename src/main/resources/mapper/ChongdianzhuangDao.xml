@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ChongdianzhuangDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.chongdianzhuang_name as chongdianzhuangName
+        ,a.chongdianzhuang_uuid_number as chongdianzhuangUuidNumber
+        ,a.chongdianzhuang_photo as chongdianzhuangPhoto
+        ,a.chongdianzhuang_types as chongdianzhuangTypes
+        ,a.chongdianzhuang_zhuangtai_types as chongdianzhuangZhuangtaiTypes
+        ,a.chongdianzhuang_kucun_number as chongdianzhuangKucunNumber
+        ,a.chongdianzhuang_new_money as chongdianzhuangNewMoney
+        ,a.chongdianzhuang_content as chongdianzhuangContent
+        ,a.shangxia_types as shangxiaTypes
+        ,a.chongdianzhuang_delete as chongdianzhuangDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ChongdianzhuangView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM chongdianzhuang  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.chongdianzhuangName != '' and params.chongdianzhuangName != null and params.chongdianzhuangName != 'null' ">
+                and a.chongdianzhuang_name like CONCAT('%',#{params.chongdianzhuangName},'%')
+            </if>
+            <if test=" params.chongdianzhuangUuidNumber != '' and params.chongdianzhuangUuidNumber != null and params.chongdianzhuangUuidNumber != 'null' ">
+                and a.chongdianzhuang_uuid_number like CONCAT('%',#{params.chongdianzhuangUuidNumber},'%')
+            </if>
+            <if test="params.chongdianzhuangTypes != null and params.chongdianzhuangTypes != ''">
+                and a.chongdianzhuang_types = #{params.chongdianzhuangTypes}
+            </if>
+            <if test="params.chongdianzhuangZhuangtaiTypes != null and params.chongdianzhuangZhuangtaiTypes != ''">
+                and a.chongdianzhuang_zhuangtai_types = #{params.chongdianzhuangZhuangtaiTypes}
+            </if>
+            <if test="params.chongdianzhuangKucunNumberStart != null and params.chongdianzhuangKucunNumberStart != ''">
+                <![CDATA[  and a.chongdianzhuang_kucun_number >= #{params.chongdianzhuangKucunNumberStart}   ]]>
+            </if>
+            <if test="params.chongdianzhuangKucunNumberEnd != null and params.chongdianzhuangKucunNumberEnd != ''">
+                <![CDATA[  and a.chongdianzhuang_kucun_number <= #{params.chongdianzhuangKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.chongdianzhuangKucunNumber != null and params.chongdianzhuangKucunNumber != ''">
+                and a.chongdianzhuang_kucun_number = #{params.chongdianzhuangKucunNumber}
+             </if>
+            <if test="params.chongdianzhuangNewMoneyStart != null ">
+                <![CDATA[  and a.chongdianzhuang_new_money >= #{params.chongdianzhuangNewMoneyStart}   ]]>
+            </if>
+            <if test="params.chongdianzhuangNewMoneyEnd != null ">
+                <![CDATA[  and a.chongdianzhuang_new_money <= #{params.chongdianzhuangNewMoneyEnd}   ]]>
+            </if>
+            <if test=" params.chongdianzhuangContent != '' and params.chongdianzhuangContent != null and params.chongdianzhuangContent != 'null' ">
+                and a.chongdianzhuang_content like CONCAT('%',#{params.chongdianzhuangContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null and params.shangxiaTypes != ''">
+                and a.shangxia_types = #{params.shangxiaTypes}
+            </if>
+            <if test="params.chongdianzhuangDeleteStart != null and params.chongdianzhuangDeleteStart != ''">
+                <![CDATA[  and a.chongdianzhuang_delete >= #{params.chongdianzhuangDeleteStart}   ]]>
+            </if>
+            <if test="params.chongdianzhuangDeleteEnd != null and params.chongdianzhuangDeleteEnd != ''">
+                <![CDATA[  and a.chongdianzhuang_delete <= #{params.chongdianzhuangDeleteEnd}   ]]>
+            </if>
+             <if test="params.chongdianzhuangDelete != null and params.chongdianzhuangDelete != ''">
+                and a.chongdianzhuang_delete = #{params.chongdianzhuangDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
